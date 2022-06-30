@@ -38,10 +38,18 @@ public class Server {
         } finally {
             // 关闭资源
             try {
-                baos.close();
-                is.close();
-                socket.close();
-                serverSocket.close();
+                if (baos != null) {
+                    baos.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+                if (socket != null) {
+                    socket.close();
+                }
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
