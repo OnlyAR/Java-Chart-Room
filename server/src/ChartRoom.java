@@ -76,8 +76,8 @@ public class ChartRoom{
             broadcast(owner.getUsername(), "房间被解散");
         }
         for (User u: userList) {
-            removeUser(u);
             u.returnMenu();
         }
+        server.getChartRoomList().remove(this);
     }
 }
