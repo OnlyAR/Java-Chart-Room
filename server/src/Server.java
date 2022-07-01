@@ -1,59 +1,70 @@
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-public class Server {
-    public static void main(String[] args) {
-
-        ServerSocket serverSocket = null;
-        Socket socket = null;
-        InputStream is = null;
-        ByteArrayOutputStream baos = null;
-
-        try {
-            JSON config = new JSON("config.json");
-            int port = Integer.parseInt(config.get("PORT"));
-            // 提供一个地址
-            serverSocket = new ServerSocket(port);
-
-            // 等待客户端连接
-
-            socket = serverSocket.accept();
-
-            // 读取客户端的消息
-            is = socket.getInputStream();
-            baos = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = is.read(buffer)) != -1) {
-                baos.write(buffer, 0, len);
-            }
-            System.out.println(baos.toString());
+import java.util.LinkedList;
 
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            // 关闭资源
-            try {
-                if (baos != null) {
-                    baos.close();
-                }
-                if (is != null) {
-                    is.close();
-                }
-                if (socket != null) {
-                    socket.close();
-                }
-                if (serverSocket != null) {
-                    serverSocket.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+public class Server{
+
+    final private int PORT = 8000;
+    final private LinkedList<User> userList = new LinkedList<>();
+    final private LinkedList<ChartRoom> chartRoomList = new LinkedList<>();
+    final private LinkedList<Received> receivedList = new LinkedList<>();
+    final private LinkedList<Sent> sentList = new LinkedList<>();
+    private int cntRoom = 0;
+
+    public Server() throws IOException {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            new ReceiveThread(receivedList).start();
+            new SendThread(sentList).start();
+            while (true) {
+                userList.removeIf(u -> !u.isOnline());
+                Socket socket = serverSocket.accept();
+                System.out.println("新用户加入");
+                User newUser = new User(socket, this);
+                userList.add(newUser);
+                newUser.start();
             }
         }
+    }
 
+    public LinkedList<User> getUserList() {
+        return userList;
+    }
+
+    public static void main(String[] args) {
+        try {
+            new Server();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LinkedList<ChartRoom> getChartRoomList() {
+        return chartRoomList;
+    }
+
+    public ChartRoom createChatroom(User src, User dst) {
+        ChartRoom room = new ChartRoom(this, cntRoom, true);
+        cntRoom++;
+        chartRoomList.add(room);
+        room.addUser(src);
+        room.addUser(dst);
+        return room;
+    }
+
+    public ChartRoom createPublicChatroom(User owner) {
+        ChartRoom room = new ChartRoom(this, cntRoom++, owner);
+        room.addUser(owner);
+        chartRoomList.add(room);
+        return room;
+    }
+
+    public LinkedList<Received> getReceivedList() {
+        return receivedList;
+    }
+
+    public LinkedList<Sent> getSentList() {
+        return sentList;
     }
 }
