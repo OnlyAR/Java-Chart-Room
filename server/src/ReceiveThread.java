@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 public class ReceiveThread extends Thread {
-    private LinkedList<Received> receivedList;
+    private final LinkedList<Received> receivedList;
 
     public ReceiveThread(LinkedList<Received> receivedList) {
         this.receivedList = receivedList;

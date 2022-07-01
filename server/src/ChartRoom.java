@@ -5,13 +5,12 @@ public class ChartRoom{
     private final int id;
     private final Server server;
     private final boolean secret;
+    private final LinkedList<User> userList = new LinkedList<>();
+    private final User owner;
 
     public LinkedList<User> getUserList() {
         return userList;
     }
-
-    private final LinkedList<User> userList = new LinkedList<>();
-    private final User owner;
 
     public ChartRoom (Server server, int id, boolean secret){
         super();
@@ -35,7 +34,7 @@ public class ChartRoom{
 
     public void removeUser(User user) {
         for (User u: userList) {
-            if (u.equals(user)) {
+            if (u == user) {
                 userList.remove(u);
                 break;
             }
@@ -60,7 +59,7 @@ public class ChartRoom{
 
     public void broadcast(String username,  String msg) throws IOException {
         for (User u: userList) {
-            u.send(String.format("[%s]: %s\n", username, msg));
+            u.send(String.format("[%s]: %s", username, msg));
         }
     }
 
@@ -77,6 +76,7 @@ public class ChartRoom{
             broadcast(owner.getUsername(), "房间被解散");
         }
         for (User u: userList) {
+            removeUser(u);
             u.returnMenu();
         }
     }

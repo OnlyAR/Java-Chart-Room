@@ -35,7 +35,7 @@ public class User extends Thread {
         in = new BufferedReader(new InputStreamReader(client.getInputStream(), StandardCharsets.UTF_8));
         username = in.readLine();
         System.out.println("username: " + username);
-        send("您好[" + username + "]，连接成功\n");
+        send("您好[" + username + "]，连接成功");
         help();
         status = Status.MENU;
     }
@@ -95,7 +95,6 @@ public class User extends Thread {
                 case "cr":
                     createPublicRoom();
                     break;
-
 
                 case "jr":
                     status = Status.JOIN_ROOM;
@@ -174,8 +173,9 @@ public class User extends Thread {
             if (u.username.equals(user)) {
                 chartRoom.broadcast(u.username, "被房主移出房间");
                 chartRoom.removeUser(u);
-                u.returnMenu();
+                u.chartRoom = null;
                 status = Status.CHART;
+                u.returnMenu();
                 return;
             }
         }
@@ -184,7 +184,7 @@ public class User extends Thread {
 
     private void listRoomUser() {
         for (User u : chartRoom.getUserList()) {
-            send(u.username);
+            send("[" + u.username + "]");
         }
     }
 
@@ -265,17 +265,19 @@ public class User extends Thread {
     public void listUsers() {
         LinkedList<User> users = new LinkedList<>(server.getUserList());
 
+        send("===========================");
         if (users.size() == 1) {
             send("无其他在线用户");
         } else {
             for (User u : users) {
                 if (!u.equals(this)) {
-                    String sentMsg = u.username;
-                    if (u.status == Status.MENU) sentMsg = "[" + sentMsg + "]  <free>";
-                    server.getSentList().add(new Sent(this, sentMsg));
+                    String sentMsg = "[" + u.username + "]";
+                    if (u.status == Status.MENU) sentMsg = sentMsg + "  <free>";
+                    send(sentMsg);
                 }
             }
         }
+        send("===========================");
     }
 
     public void listRooms() {
@@ -292,13 +294,16 @@ public class User extends Thread {
     }
 
     public void help() {
-        send("lu: 列出所有用户");
-        send("lr: 列出房间");
-        send("chat: 单聊");
-        send("cr: 创建房间");
-        send("jr: 加入房间");
-        send("logout: 退出");
-        send("help: 帮助");
+        send("<<<<<<<<<<<<<<<<<<<<<<<");
+        send("| lu:     列出所有用户");
+        send("| lr:     列出房间");
+        send("| chat:   单聊");
+        send("| cr:     创建房间");
+        send("| jr:     加入房间");
+        send("| logout: 退出");
+        send("| help:   帮助");
+        send(">>>>>>>>>>>>>>>>>>>>>>");
+
     }
 
     public boolean isOnline() {
