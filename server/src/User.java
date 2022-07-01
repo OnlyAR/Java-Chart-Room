@@ -111,6 +111,9 @@ public class User extends Thread {
                 case "help":
                     help();
                     break;
+
+                default:
+                    send("无此命令");
             }
         } else if (status == Status.READY_FOR_REPLY) {
             chat(msg);
