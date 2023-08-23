@@ -3,8 +3,7 @@ import java.net.Socket;
 
 public class Client {
 
-    private final String SERVER_IP = "81.70.132.82";
-//    private final String SERVER_IP = "127.0.0.1";
+    private final String SERVER_IP = "127.0.0.1";
     private final int PORT = 8000;
     private boolean online;
 
